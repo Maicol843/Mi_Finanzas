@@ -2,6 +2,8 @@ import tkinter as tk
 import customtkinter as ctk
 import sys
 
+from ingresos import ModuloIngresos
+
 # Configuración inicial de la interfaz (Tema y Color)
 ctk.set_appearance_mode("System")  # Detecta automáticamente el modo del sistema (Claro/Oscuro)
 ctk.set_default_color_theme("blue")  # Tema de color principal
@@ -100,11 +102,9 @@ class App(ctk.CTk):
         self.limpiar_pantalla_principal()
         self.actualizar_estilo_botones(self.btn_ingresos)
         
-        # Aquí es donde conectaremos con ingresos.py en el futuro
-        lbl = ctk.CTkLabel(self.main_frame, text="Módulo de Ingresos", font=ctk.CTkFont(size=24, weight="bold"))
-        lbl.pack(pady=20)
-        lbl_info = ctk.CTkLabel(self.main_frame, text="Próximamente se integrará el formulario de ingresos.py aquí.")
-        lbl_info.pack()
+        # Instanciamos y empaquetamos el módulo de ingresos directamente en el panel principal
+        self.modulo_ingresos = ModuloIngresos(self.main_frame)
+        self.modulo_ingresos.pack(fill="both", expand=True)
 
     def ir_a_egresos(self):
         self.limpiar_pantalla_principal()
