@@ -3,6 +3,7 @@ import customtkinter as ctk
 import sys
 
 from ingresos import ModuloIngresos
+from egresos import ModuloEgresos
 
 # Configuración inicial de la interfaz (Tema y Color)
 ctk.set_appearance_mode("System")  # Detecta automáticamente el modo del sistema (Claro/Oscuro)
@@ -110,8 +111,9 @@ class App(ctk.CTk):
         self.limpiar_pantalla_principal()
         self.actualizar_estilo_botones(self.btn_gastos)
         
-        lbl = ctk.CTkLabel(self.main_frame, text="Módulo de Gastos (Egresos)", font=ctk.CTkFont(size=24, weight="bold"))
-        lbl.pack(pady=20)
+        # Instanciamos y renderizamos el nuevo módulo de gastos de forma interactiva
+        self.modulo_egresos = ModuloEgresos(self.main_frame)
+        self.modulo_egresos.pack(fill="both", expand=True)
 
     def ir_a_ahorros(self):
         self.limpiar_pantalla_principal()

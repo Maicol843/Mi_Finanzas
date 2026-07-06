@@ -5,9 +5,11 @@ def conectar():
     return sqlite3.connect("finanzas.db")
 
 def crear_tablas():
-    """Crea la tabla de ingresos si no existe"""
+    """Crea las tablas de ingresos y egresos si no existen"""
     conexion = conectar()
     cursor = conexion.cursor()
+    
+    # Tabla de Ingresos
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS ingresos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -16,6 +18,18 @@ def crear_tablas():
             importe REAL NOT NULL
         )
     """)
+    
+    # TABLA DE EGRESOS (Faltaba añadir esta sección)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS egresos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            fecha TEXT NOT NULL,
+            descripcion TEXT NOT NULL,
+            categoria TEXT NOT NULL,
+            importe REAL NOT NULL
+        )
+    """)
+    
     conexion.commit()
     conexion.close()
 
@@ -99,6 +113,58 @@ def obtener_totales_por_mes():
     
     # Retorna una lista de tuplas, ej: [('2026-05', 450.0), ('2026-06', 1970.5)]
     return resultado
+
+def insertar_egreso(fecha, descripcion, categoria, importe):
+    """Inserta un nuevo gasto en la base de datos"""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("""
+        INSERT INTO egresos (fecha, descripcion, categoria, importe)
+        VALUES (?, ?, ?, ?)
+    """, (fecha, descripcion, categoria, importe))
+    conexion.commit()
+    conexion.close()
+
+def obtener_egresos_mes_actual(mes, anio):
+    conexion = conectar()
+    cursor = conexion.cursor()
+    # Busca fechas que terminen con el formato '-MM-AAAA'
+    patron_fecha = f"%-{mes}-{anio}"
+    cursor.execute("SELECT id, fecha, descripcion, categoria, importe FROM egresos WHERE fecha LIKE ?", (patron_fecha,))
+    filas = cursor.fetchall()
+    conexion.close()
+    
+    # Mapea a un diccionario legible por la tabla
+    egresos = []
+    for f in filas:
+        egresos.append({
+            "id": f[0],
+            "fecha": f[1],
+            "descripcion": f[2],
+            "categoria": f[3],
+            "importe": f[4]
+        })
+    return egresos
+
+def actualizar_egreso(id_egreso, fecha, descripcion, categoria, importe):
+    """Modifica un egreso existente"""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("""
+        UPDATE egresos 
+        SET fecha = ?, descripcion = ?, categoria = ?, importe = ?
+        WHERE id = ?
+    """, (fecha, descripcion, categoria, importe, id_egreso))
+    conexion.commit()
+    conexion.close()
+
+def eliminar_egreso_db(id_egreso):
+    """Elimina permanentemente un egreso"""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("DELETE FROM egresos WHERE id = ?", (id_egreso,))
+    conexion.commit()
+    conexion.close()
 
 # Inicializamos la base de datos al importar el script
 crear_tablas()
