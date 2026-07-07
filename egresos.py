@@ -92,8 +92,12 @@ class ModuloEgresos(ctk.CTkFrame):
         self.actualizar_tabla()
 
     def obtener_datos_filtrados(self):
+        # Al pasar de año, datetime.today() cambia de valor automáticamente.
+        # Esto previene que se mezclen datos de diciembres o eneros de periodos pasados.
         mes_actual = datetime.today().strftime('%m')
         anio_actual = datetime.today().strftime('%Y')
+        
+        # Trae estrictamente los egresos del mes y AÑO en curso
         todos_los_egresos = database.obtener_egresos_mes_actual(mes_actual, anio_actual)
         
         busqueda = self.texto_busqueda.get().lower().strip()
@@ -101,9 +105,11 @@ class ModuloEgresos(ctk.CTkFrame):
         
         datos_filtrados = todos_los_egresos
         
+        # Filtro 1: Por palabras clave en la descripción
         if busqueda:
             datos_filtrados = [e for e in datos_filtrados if busqueda in e["descripcion"].lower()]
             
+        # Filtro 2: Por categoría (Fijo / Variable)
         if filto_cat != "Todos":
             datos_filtrados = [e for e in datos_filtrados if e["categoria"].lower() == filto_cat.lower()]
             

@@ -4,6 +4,7 @@ import sys
 
 from ingresos import ModuloIngresos
 from egresos import ModuloEgresos
+from ahorros import ModuloAhorros
 
 # Configuración inicial de la interfaz (Tema y Color)
 ctk.set_appearance_mode("System")  # Detecta automáticamente el modo del sistema (Claro/Oscuro)
@@ -119,8 +120,9 @@ class App(ctk.CTk):
         self.limpiar_pantalla_principal()
         self.actualizar_estilo_botones(self.btn_ahorros)
         
-        lbl = ctk.CTkLabel(self.main_frame, text="Módulo de Ahorros", font=ctk.CTkFont(size=24, weight="bold"))
-        lbl.pack(pady=20)
+        # SOLUCIÓN: Instanciamos y empaquetamos el módulo de ahorros real de forma interactiva
+        self.modulo_ahorros = ModuloAhorros(self.main_frame)
+        self.modulo_ahorros.pack(fill="both", expand=True)
 
     def ir_a_deudas(self):
         self.limpiar_pantalla_principal()

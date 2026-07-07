@@ -150,7 +150,7 @@ class ModuloIngresos(ctk.CTkFrame):
         frame_total = ctk.CTkFrame(self.frame_tabla_contenedor, fg_color="transparent", height=40)
         frame_total.pack(fill="x", side="top", pady=(10, 0))
         
-        lbl_total_txt = ctk.CTkLabel(frame_total, text="TOTAL MES ACTUAL:", font=ctk.CTkFont(size=14, weight="bold"))
+        lbl_total_txt = ctk.CTkLabel(frame_total, text="TOTAL INGRESOS:", font=ctk.CTkFont(size=14, weight="bold"))
         lbl_total_txt.place(relx=0.35, rely=0.5, anchor="w")
         
         lbl_total_num = ctk.CTkLabel(frame_total, text=f"$ {suma_total:.2f}", font=ctk.CTkFont(size=15, weight="bold"), text_color=self.color_primario[0])

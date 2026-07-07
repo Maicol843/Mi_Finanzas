@@ -29,21 +29,20 @@ class VistaGraficaEgresos(ctk.CTkFrame):
 
     def obtener_totales_historicos(self):
         """
-        Extrae y agrupa todos los egresos de todos los meses de la base de datos.
-        Devuelve una lista ordenada de meses y sus respectivos totales gastados.
+        Extrae y agrupa los egresos pertenecientes ÚNICAMENTE al año actual.
         """
         todos_los_registros = []
+        anio_actual = datetime.today().strftime('%Y') # Detecta automáticamente el año en curso
         
-        # Intentamos usar los métodos disponibles en tu base de datos
         try:
+            # Intentamos traer todos los egresos si la función existe
             if hasattr(database, 'obtener_todos_los_egresos'):
                 todos_los_registros = database.obtener_todos_los_egresos()
             elif hasattr(database, 'obtener_egresos'):
                 todos_los_registros = database.obtener_egresos()
             else:
-                # Si tu base de datos sólo filtra por mes, podemos iterar los meses del año actual de respaldo
-                anio_actual = datetime.today().strftime('%Y')
-                for m in range(1, 12):
+                # Si no hay función global, iteramos los 12 meses pero clavados al año actual
+                for m in range(1, 13):
                     mes_str = f"{m:02d}"
                     registros_mes = database.obtener_egresos_mes_actual(mes_str, anio_actual)
                     if registros_mes:
@@ -51,24 +50,22 @@ class VistaGraficaEgresos(ctk.CTkFrame):
         except Exception as e:
             print(f"Error al conectar con la base de datos: {e}")
             
-        # Agrupador dinámico por Mes-Año (ej: "07-2026")
         acumulado_meses = defaultdict(float)
         
         for reg in todos_los_registros:
             try:
-                # Extraemos mes y año del string de fecha 'DD-MM-YYYY'
                 fecha_obj = datetime.strptime(reg["fecha"], "%d-%m-%Y")
-                clave_mes = fecha_obj.strftime("%m-%Y")
-                acumulado_meses[clave_mes] += float(reg["importe"])
+                # FILTRO CRUCIAL: Solo tomamos en cuenta los registros que coincidan con el año actual
+                if fecha_obj.strftime("%Y") == anio_actual:
+                    clave_mes = fecha_obj.strftime("%m-%Y")
+                    acumulado_meses[clave_mes] += float(reg["importe"])
             except Exception:
                 continue
 
-        # Si tras la búsqueda sigue vacía, mantenemos el mes actual en 0 para evitar fallos visuales
         if not acumulado_meses:
             mes_actual = datetime.today().strftime('%m-%Y')
             acumulado_meses[mes_actual] = 0.0
 
-        # Ordenar cronológicamente los meses de manera correcta
         meses_ordenados = sorted(acumulado_meses.keys(), key=lambda x: datetime.strptime(x, "%m-%Y"))
         totales_ordenados = [acumulado_meses[mes] for mes in meses_ordenados]
 
