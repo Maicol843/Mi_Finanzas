@@ -2,14 +2,14 @@ import tkinter as tk
 import customtkinter as ctk
 from tkinter import messagebox
 from datetime import datetime
-import database  # Asegúrate de mapear estas funciones en tu archivo database.py
+import database 
 
 class ModuloAhorros(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent, fg_color="transparent")
         
         self.parent = parent
-        self.color_ahorros = ["#4CAF50", "#45a049"]  # Tonalidad verde para identificar ahorros
+        self.color_ahorros = ["#4DD4AC", "#20c997"]  # Tonalidad verde para identificar ahorros
         self.ahorro_seleccionado_id = None
         
         self.pagina_actual = 1
@@ -22,7 +22,7 @@ class ModuloAhorros(ctk.CTkFrame):
         
         self.lbl_desc = ctk.CTkLabel(
             self, 
-            text="Aquí ingresarás tus reservas para el futuro con el fin de cubrir imprevistos, viajes, realizar grandes compras o invertir.",
+            text="Aquí ingresarás tus reservas para el futuro con el fin de cubrir imprevistos, viajes, realizar grandes compras o invertir en inmuebles o objetos de valor, etc.",
             font=ctk.CTkFont(size=13),
             wraplength=600
         )
@@ -32,20 +32,29 @@ class ModuloAhorros(ctk.CTkFrame):
         self.frame_acciones = ctk.CTkFrame(self, fg_color="transparent")
         self.frame_acciones.pack(fill="x", padx=20, pady=5)
         
+        # Botón Nuevo
         self.btn_nuevo = ctk.CTkButton(self.frame_acciones, text="Nuevo", fg_color=self.color_ahorros, text_color="white", hover_color=self.color_ahorros[1], width=90, command=self.abrir_ventana_nuevo)
         self.btn_nuevo.pack(side="left", padx=3)
         
+        # Botón Editar
+        self.btn_editar = ctk.CTkButton(self.frame_acciones, text="Editar", fg_color="gray30", hover_color="gray40", width=90, command=self.abrir_ventana_editar)
+        self.btn_editar.pack(side="left", padx=3)
+
+        # Botón Eliminar
+        self.btn_eliminar = ctk.CTkButton(self.frame_acciones, text="Eliminar", fg_color="gray30", hover_color="gray40", text_color="white", width=90, command=self.confirmar_eliminacion)
+        self.btn_eliminar.pack(side="left", padx=3)
+        
+        # Botones de navegación adicionales
         self.btn_registrar = ctk.CTkButton(self.frame_acciones, text="Registrar", fg_color="gray30", hover_color="gray40", width=90, command=self.abrir_ventana_registrar)
         self.btn_registrar.pack(side="left", padx=3)
         
         self.btn_historial = ctk.CTkButton(self.frame_acciones, text="Historial", fg_color="gray30", hover_color="gray40", width=90, command=self.ir_a_historial)
         self.btn_historial.pack(side="left", padx=3)
         
-        # MODIFICADO: Ahora ejecuta self.ir_a_grafica para cambiar de módulo
         self.btn_grafica = ctk.CTkButton(self.frame_acciones, text="Gráficas", fg_color="gray30", hover_color="gray40", width=90, command=self.ir_a_grafica)
         self.btn_grafica.pack(side="left", padx=3)
 
-        # Buscador por Nombre de Ahorro (Arriba de la tabla, alineado a la derecha)
+        # Buscador por Nombre de Ahorro
         self.entry_buscar = ctk.CTkEntry(self.frame_acciones, placeholder_text="Buscar por ahorro...", width=200)
         self.entry_buscar.pack(side="right", padx=5)
         self.entry_buscar.bind("<KeyRelease>", lambda event: self.detectar_cambio_filtro())
@@ -58,19 +67,15 @@ class ModuloAhorros(ctk.CTkFrame):
 
     def ir_a_historial(self):
         from historial_ahorros import ModuloHistorialAhorros
-        # Limpiamos el frame actual y cargamos el historial
         for widget in self.parent.winfo_children():
             widget.destroy()
-        
         historial_frame = ModuloHistorialAhorros(self.parent)
         historial_frame.pack(fill="both", expand=True)
 
-    # MODIFICADO: Redirige dinámicamente limpiando la interfaz para mostrar el gráfico completo
     def ir_a_grafica(self):
         from grafica_ahorros import ModuloGraficaAhorros
         for widget in self.parent.winfo_children():
             widget.destroy()
-            
         grafica_frame = ModuloGraficaAhorros(self.parent)
         grafica_frame.pack(fill="both", expand=True)
 
@@ -106,19 +111,23 @@ class ModuloAhorros(ctk.CTkFrame):
         datos_pagina = datos_filtrados[inicio_idx:inicio_idx + self.registros_por_pagina]
 
         # Cabeceras de la Tabla de Ahorros
-        headers = ["Ahorro", "Meta", "Imp. Inicial", "Total Ahorrado", "Progreso"]
+        headers = ["Ahorro", "Meta", "Imp. Inicial", "Total Ahorrado", "Total a Ahorrar", "Progreso"]
         frame_headers = ctk.CTkFrame(self.frame_tabla_contenedor, fg_color="gray20", height=35)
         frame_headers.pack(fill="x", side="top")
         frame_headers.pack_propagate(False)
         
+        # COORDENADAS CORREGIDAS: Se aumentó la separación y el ancho del título inicial 'Ahorro'
+        posiciones_x = [0.03, 0.22, 0.36, 0.52, 0.69, 0.83]
+        anchos_rel = [0.17, 0.12, 0.12, 0.14, 0.14, 0.15]
+
         for i, h in enumerate(headers):
-            anchor_lbl = "w" if i == 0 or i == 4 else "e"
+            anchor_lbl = "w" if i == 0 or i == 5 else "e"
             lbl = ctk.CTkLabel(frame_headers, text=h, font=ctk.CTkFont(weight="bold"), anchor=anchor_lbl)
             lbl.place(
-                relx=0.05 if i==0 else (0.25 if i==1 else (0.42 if i==2 else (0.60 if i==3 else 0.78))), 
+                relx=posiciones_x[i], 
                 rely=0.5, 
-                anchor="w" if i == 0 or i == 4 else "e",
-                relwidth=0.18 if i==0 else (0.15 if i==1 else (0.15 if i==2 else (0.15 if i==3 else 0.20)))
+                anchor="w" if i == 0 or i == 5 else "e",
+                relwidth=anchos_rel[i]
             )
 
         # Dibujar Filas de Datos
@@ -132,40 +141,49 @@ class ModuloAhorros(ctk.CTkFrame):
             
             # Nombre
             lbl_n = ctk.CTkLabel(fila, text=item["nombre"], text_color=txt_color, anchor="w")
-            lbl_n.place(relx=0.05, rely=0.5, anchor="w")
+            lbl_n.place(relx=posiciones_x[0], rely=0.5, anchor="w")
             
             # Meta
             lbl_m = ctk.CTkLabel(fila, text=f"$ {item['meta']:.2f}", text_color=txt_color, anchor="e")
-            lbl_m.place(relx=0.25, rely=0.5, anchor="e")
+            lbl_m.place(relx=posiciones_x[1], rely=0.5, anchor="e")
             
             # Importe Inicial
             lbl_ii = ctk.CTkLabel(fila, text=f"$ {item['inicial']:.2f}", text_color=txt_color, anchor="e")
-            lbl_ii.place(relx=0.42, rely=0.5, anchor="e")
+            lbl_ii.place(relx=posiciones_x[2], rely=0.5, anchor="e")
             
-            # Total Ahorrado (Inicial + Depósitos realizados)
+            # Total Ahorrado
             lbl_ta = ctk.CTkLabel(fila, text=f"$ {item['total_ahorrado']:.2f}", text_color=txt_color, anchor="e")
-            lbl_ta.place(relx=0.60, rely=0.5, anchor="e")
+            lbl_ta.place(relx=posiciones_x[3], rely=0.5, anchor="e")
             
-            # Cálculo de progreso con tope en 100%
+            # Total a Ahorrar (Meta - Total Ahorrado)
+            restante = max(0.0, item['meta'] - item['total_ahorrado'])
+            lbl_tr = ctk.CTkLabel(fila, text=f"$ {restante:.2f}", text_color=txt_color, anchor="e")
+            lbl_tr.place(relx=posiciones_x[4], rely=0.5, anchor="e")
+            
+            # Progreso
             porcentaje = (item['total_ahorrado'] * 100) / item['meta'] if item['meta'] > 0 else 0
             porcentaje_barra = min(1.0, porcentaje / 100)
             
-            # Contenedor del progreso (Barra de progreso + Texto %)
             frame_progreso = ctk.CTkFrame(fila, fg_color="transparent")
-            frame_progreso.place(relx=0.78, rely=0.5, anchor="w", relwidth=0.20)
+            frame_progreso.place(relx=posiciones_x[5], rely=0.5, anchor="w", relwidth=anchos_rel[5])
             
-            p_bar = ctk.CTkProgressBar(frame_progreso, width=100, progress_color=self.color_ahorros[0])
+            p_bar = ctk.CTkProgressBar(frame_progreso, width=90, progress_color=self.color_ahorros[0] if self.ahorro_seleccionado_id != item["id"] else "white")
             p_bar.set(porcentaje_barra)
             p_bar.pack(side="left", padx=(0, 5))
             
             lbl_p = ctk.CTkLabel(frame_progreso, text=f"{porcentaje:.1f}%", text_color=txt_color, font=ctk.CTkFont(size=11, weight="bold"))
             lbl_p.pack(side="left")
             
-            # Bind para seleccionar fila
+            # Hacer que toda la fila y sus componentes internos sean clickeables
             id_actual = item["id"]
             fila.bind("<Button-1>", lambda e, idx=id_actual: self.seleccionar_fila(idx))
+            lbl_n.bind("<Button-1>", lambda e, idx=id_actual: self.seleccionar_fila(idx))
+            lbl_m.bind("<Button-1>", lambda e, idx=id_actual: self.seleccionar_fila(idx))
+            lbl_ii.bind("<Button-1>", lambda e, idx=id_actual: self.seleccionar_fila(idx))
+            lbl_ta.bind("<Button-1>", lambda e, idx=id_actual: self.seleccionar_fila(idx))
+            lbl_tr.bind("<Button-1>", lambda e, idx=id_actual: self.seleccionar_fila(idx))
 
-        # Paginación Inferior (Hasta 10 ahorros por página)
+        # Paginación Inferior
         frame_paginacion = ctk.CTkFrame(self.frame_tabla_contenedor, fg_color="transparent", height=40)
         frame_paginacion.pack(fill="x", side="bottom")
         
@@ -193,15 +211,116 @@ class ModuloAhorros(ctk.CTkFrame):
             self.pagina_actual += 1
             self.actualizar_tabla()
 
-    # FORMULARIO: Botón Nuevo (Meta de Ahorros)
-    def abrir_ventana_nuevo(self):
+    # Formulario y Ventana de Edición
+    def abrir_ventana_editar(self):
+        if self.ahorro_seleccionado_id is None:
+            messagebox.showwarning("Atención", "Por favor, selecciona una fila de la tabla para editar.")
+            return
+
+        datos_completos = self.obtener_datos_filtrados()
+        ahorro_actual = next((a for a in datos_completos if a["id"] == self.ahorro_seleccionado_id), None)
+        
+        if not ahorro_actual:
+            return
+
         ventana = ctk.CTkToplevel(self)
-        ventana.title("Nueva Meta de Ahorro")
+        ventana.title("Editar Meta de Ahorro")
         ventana.geometry("400x380")
         ventana.grab_set()
         ventana.resizable(False, False)
         
+        ctk.CTkLabel(ventana, text="Editar Meta de Ahorro", font=ctk.CTkFont(size=18, weight="bold")).pack(pady=15)
+        
+        ctk.CTkLabel(ventana, text="Nombre del Ahorro:", anchor="w").pack(fill="x", padx=40)
+        entry_nombre = ctk.CTkEntry(ventana)
+        entry_nombre.pack(fill="x", padx=40, pady=(0, 10))
+        entry_nombre.insert(0, ahorro_actual["nombre"])
+        
+        ctk.CTkLabel(ventana, text="Meta (Importe a llegar $):", anchor="w").pack(fill="x", padx=40)
+        entry_meta = ctk.CTkEntry(ventana)
+        entry_meta.pack(fill="x", padx=40, pady=(0, 10))
+        entry_meta.insert(0, str(ahorro_actual["meta"]))
+        
+        ctk.CTkLabel(ventana, text="Importe Inicial ($):", anchor="w").pack(fill="x", padx=40)
+        entry_inicial = ctk.CTkEntry(ventana)
+        entry_inicial.pack(fill="x", padx=40, pady=(0, 20))
+        entry_inicial.insert(0, str(ahorro_actual["inicial"]))
+
+        def guardar_cambios():
+            nuevo_nombre = entry_nombre.get().strip()
+            meta_str = entry_meta.get().strip()
+            inicial_str = entry_inicial.get().strip()
+            
+            if not nuevo_nombre or not meta_str or not inicial_str:
+                messagebox.showerror("Error", "Todos los campos son obligatorios.", parent=ventana)
+                return
+            try:
+                meta = float(meta_str)
+                inicial = float(inicial_str)
+            except ValueError:
+                messagebox.showerror("Error", "Los importes deben ser valores numéricos válidos.", parent=ventana)
+                return
+                
+            try:
+                database.actualizar_meta_ahorro(
+                    self.ahorro_seleccionado_id, 
+                    nuevo_nombre, 
+                    meta, 
+                    inicial, 
+                    ahorro_actual["nombre"]
+                )
+                self.ahorro_seleccionado_id = None
+            except ValueError as e:
+                messagebox.showerror("Error", str(e), parent=ventana)
+                return
+            except AttributeError:
+                pass
+                
+            self.actualizar_tabla()
+            ventana.destroy()
+
+        frame_btns = ctk.CTkFrame(ventana, fg_color="transparent")
+        frame_btns.pack(fill="x", padx=40)
+        ctk.CTkButton(frame_btns, text="Cancelar", fg_color="gray30", width=100, command=ventana.destroy).pack(side="left", padx=5)
+        ctk.CTkButton(frame_btns, text="Guardar", fg_color=self.color_ahorros[0], hover_color=self.color_ahorros[1], width=100, command=guardar_cambios).pack(side="right", padx=5)
+
+    def confirmar_eliminacion(self):
+        if self.ahorro_seleccionado_id is None:
+            messagebox.showwarning("Atención", "Por favor, selecciona una fila de la tabla para eliminar.")
+            return
+
+        datos_completos = self.obtener_datos_filtrados()
+        ahorro_actual = next((a for a in datos_completos if a["id"] == self.ahorro_seleccionado_id), None)
+        
+        if not ahorro_actual:
+            return
+
+        respuesta = messagebox.askyesno(
+            "Confirmar eliminación", 
+            "¿Estas seguro de eliminar este ahorro?\nSe borrarán también todos sus registros históricos."
+        )
+        
+        if respuesta:
+            try:
+                database.eliminar_meta_ahorro_db(self.ahorro_seleccionado_id, ahorro_actual["nombre"])
+                self.ahorro_seleccionado_id = None
+                self.actualizar_tabla()
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo eliminar el registro: {e}")
+
+    def abrir_ventana_nuevo(self):
+        ventana = ctk.CTkToplevel(self)
+        ventana.title("Nueva Meta de Ahorro")
+        ventana.geometry("400x430")
+        ventana.grab_set()
+        ventana.resizable(False, False)
+        
         ctk.CTkLabel(ventana, text="Nueva Meta de Ahorro", font=ctk.CTkFont(size=18, weight="bold")).pack(pady=15)
+        
+        ctk.CTkLabel(ventana, text="Fecha Inicial (DD-MM-AAAA):", anchor="w").pack(fill="x", padx=40)
+        entry_fecha = ctk.CTkEntry(ventana)
+        entry_fecha.pack(fill="x", padx=40, pady=(0, 10))
+        entry_fecha.insert(0, datetime.today().strftime('%d-%m-%Y'))
         
         ctk.CTkLabel(ventana, text="Nombre del Ahorro:", anchor="w").pack(fill="x", padx=40)
         entry_nombre = ctk.CTkEntry(ventana, placeholder_text="Ej: Viaje, Auto, Inversión...")
@@ -216,13 +335,21 @@ class ModuloAhorros(ctk.CTkFrame):
         entry_inicial.pack(fill="x", padx=40, pady=(0, 20))
 
         def guardar_meta():
+            fecha = entry_fecha.get().strip()
             nombre = entry_nombre.get().strip()
             meta_str = entry_meta.get().strip()
             inicial_str = entry_inicial.get().strip()
             
-            if not nombre or not meta_str or not inicial_str:
+            if not fecha or not nombre or not meta_str or not inicial_str:
                 messagebox.showerror("Error", "Todos los campos son obligatorios.", parent=ventana)
                 return
+                
+            try:
+                datetime.strptime(fecha, "%d-%m-%Y")
+            except ValueError:
+                messagebox.showerror("Error", "El formato de fecha debe ser DD-MM-AAAA.", parent=ventana)
+                return
+                
             try:
                 meta = float(meta_str)
                 inicial = float(inicial_str)
@@ -231,14 +358,9 @@ class ModuloAhorros(ctk.CTkFrame):
                 return
                 
             try:
-                # 1. Guardamos la meta global en la base de datos
                 database.insertar_meta_ahorro(nombre, meta, inicial)
-                
-                # CORRECCIÓN: Si el importe inicial es mayor a 0, se impacta simultáneamente en el historial de transacciones
                 if inicial > 0:
-                    fecha_hoy = datetime.today().strftime('%d-%m-%Y')
-                    database.insertar_deposito_ahorro(fecha_hoy, nombre, inicial)
-                    
+                    database.insertar_deposito_ahorro(fecha, nombre, inicial)
             except ValueError as e:
                 messagebox.showerror("Error", str(e), parent=ventana)
                 return
@@ -253,7 +375,6 @@ class ModuloAhorros(ctk.CTkFrame):
         ctk.CTkButton(frame_btns, text="Cancelar", fg_color="gray30", width=100, command=ventana.destroy).pack(side="left", padx=5)
         ctk.CTkButton(frame_btns, text="Guardar", fg_color=self.color_ahorros[0], hover_color=self.color_ahorros[1], width=100, command=guardar_meta).pack(side="right", padx=5)
 
-    # FORMULARIO: Botón Registrar (Depósitos Mensuales)
     def abrir_ventana_registrar(self):
         try:
             metas_existentes = database.obtener_metas_ahorro()

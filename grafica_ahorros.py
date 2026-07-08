@@ -12,7 +12,7 @@ class ModuloGraficaAhorros(ctk.CTkFrame):
         super().__init__(parent, fg_color="transparent")
         
         self.parent = parent
-        self.color_ahorros = ["#4CAF50", "#45a049"] # Color verde consistente
+        self.color_ahorros = ["#4DD4AC", "#20c997"] # Color verde consistente
         
         # Diccionario para ordenar y mostrar las etiquetas de los meses correctamente
         self.meses_nombres = {

@@ -219,25 +219,23 @@ def insertar_deposito_ahorro(fecha, tipo_ahorro, importe):
 
 def obtener_metas_ahorro():
     """
-    Retorna los datos calculados de los ahorros: nombre, meta, inicial, 
-    y el total ahorrado acumulando dinámicamente los depósitos.
+    Retorna los datos sumando el Importe Inicial fijo de la meta 
+    más todos los depósitos extras registrados en el historial.
     """
     conexion = conectar()
     cursor = conexion.cursor()
     
-    # Realizamos un LEFT JOIN agrupado por ID para sumar todos los depósitos
-    # individuales al importe inicial configurado por la meta.
+    # Aquí hacemos la lógica matemática exacta: Inicial + Suma de depósitos posteriores
     cursor.execute("""
         SELECT 
             m.id, 
             m.nombre, 
             m.meta, 
             m.inicial,
-            (m.inicial + COALESCE(SUM(d.importe), 0)) AS total_ahorrado
+            COALESCE(SUM(d.importe), 0) AS total_ahorrado
         FROM metas_ahorro m
         LEFT JOIN depositos_ahorro d ON m.nombre = d.tipo_ahorro
-        GROUP BY m.id
-        ORDER BY m.id DESC
+        GROUP BY m.id, m.nombre, m.meta, m.inicial
     """)
     
     filas = cursor.fetchall()
@@ -272,5 +270,125 @@ def obtener_historial_depositos():
         })
     return resultado
 
+def actualizar_meta_ahorro(id_ahorro, nuevo_nombre, nueva_meta, nuevo_inicial, nombre_anterior):
+    """Actualiza la meta de ahorro global y renombra en cascada las transacciones del historial."""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    try:
+        # Actualizamos la meta
+        cursor.execute(
+            "UPDATE metas_ahorro SET nombre = ?, meta = ?, inicial = ? WHERE id = ?",
+            (nuevo_nombre, nueva_meta, nuevo_inicial, id_ahorro)
+        )
+        # Cambiamos las referencias del historial asociadas al nombre viejo
+        cursor.execute(
+            "UPDATE depositos_ahorro SET tipo_ahorro = ? WHERE tipo_ahorro = ?",
+            (nuevo_nombre, nombre_anterior)
+        )
+        conexion.commit()
+    except sqlite3.IntegrityError:
+        raise ValueError("Ya existe otra meta de ahorro con ese nombre.")
+    finally:
+        conexion.close()
+
+def eliminar_meta_ahorro_db(id_ahorro, nombre_ahorro):
+    """Elimina la meta global y borra en cascada todas las transacciones vinculadas."""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    # Borrar los depósitos del historial de ese tipo
+    cursor.execute("DELETE FROM depositos_ahorro WHERE tipo_ahorro = ?", (nombre_ahorro,))
+    # Borrar la meta global
+    cursor.execute("DELETE FROM metas_ahorro WHERE id = ?", (id_ahorro,))
+    conexion.commit()
+    conexion.close()
+
 # Inicializamos la base de datos al importar el script
 crear_tablas()
+
+def actualizar_deposito_ahorro(id_deposito, nueva_fecha, nuevo_tipo, nuevo_importe):
+    """Actualiza un registro del historial. Si es el depósito inicial, actualiza también la meta global."""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    
+    # 1. Obtener los datos actuales antes de modificar
+    cursor.execute("SELECT tipo_ahorro, importe FROM depositos_ahorro WHERE id = ?", (id_deposito,))
+    fila = cursor.fetchone()
+    
+    if fila:
+        tipo_ahorro_antiguo, importe_antiguo = fila
+        
+        # 2. Verificar si este registro corresponde al inicial de la meta global
+        cursor.execute("SELECT id, inicial FROM metas_ahorro WHERE nombre = ?", (tipo_ahorro_antiguo,))
+        meta = cursor.fetchone()
+        
+        if meta and meta[1] == importe_antiguo:
+            # Comprobar si es el registro más antiguo (el primero insertado)
+            cursor.execute("""
+                SELECT id FROM depositos_ahorro 
+                WHERE tipo_ahorro = ? 
+                ORDER BY id ASC LIMIT 1
+            """, (tipo_ahorro_antiguo,))
+            primer_registro = cursor.fetchone()
+            
+            # Si efectivamente es el registro inicial, actualizamos también la meta global
+            if primer_registro and primer_registro[0] == id_deposito:
+                # Si el usuario cambió el nombre de la meta en el combo, buscamos la nueva meta destino
+                cursor.execute("SELECT id FROM metas_ahorro WHERE nombre = ?", (nuevo_tipo,))
+                nueva_meta = cursor.fetchone()
+                if nueva_meta:
+                    # Devolvemos a 0 la meta anterior y pasamos el valor inicial a la nueva
+                    cursor.execute("UPDATE metas_ahorro SET inicial = 0.0 WHERE id = ?", (meta[0],))
+                    cursor.execute("UPDATE metas_ahorro SET inicial = ? WHERE id = ?", (nuevo_importe, nueva_meta[0]))
+                else:
+                    # Si mantiene la misma meta, solo actualizamos el monto inicial
+                    cursor.execute("UPDATE metas_ahorro SET inicial = ? WHERE id = ?", (nuevo_importe, meta[0]))
+
+    # 3. Realizar la actualización normal en el historial
+    cursor.execute("""
+        UPDATE depositos_ahorro 
+        SET fecha = ?, tipo_ahorro = ?, importe = ? 
+        WHERE id = ?
+    """, (nueva_fecha, nuevo_tipo, nuevo_importe, id_deposito))
+    
+    conexion.commit()
+    conexion.close()
+
+def eliminar_deposito_ahorro_db(id_deposito):
+    """
+    Verifica si el registro es el importe inicial. 
+    Si lo es, cancela la operación y devuelve False. 
+    Si no lo es, lo elimina y devuelve True.
+    """
+    conexion = conectar()
+    cursor = conexion.cursor()
+    
+    # Obtener el tipo de ahorro e importe del registro que se quiere borrar
+    cursor.execute("SELECT tipo_ahorro, importe FROM depositos_ahorro WHERE id = ?", (id_deposito,))
+    fila = cursor.fetchone()
+    
+    if fila:
+        tipo_ahorro, importe_borrado = fila
+        
+        # Verificar la meta global asociada
+        cursor.execute("SELECT inicial FROM metas_ahorro WHERE nombre = ?", (tipo_ahorro,))
+        meta = cursor.fetchone()
+        
+        if meta and meta[0] == importe_borrado:
+            # Comprobar si es el primer registro insertado (el más antiguo) para esa meta
+            cursor.execute("""
+                SELECT id FROM depositos_ahorro 
+                WHERE tipo_ahorro = ? 
+                ORDER BY id ASC LIMIT 1
+            """, (tipo_ahorro,))
+            primer_registro = cursor.fetchone()
+            
+            # SI COINCIDE, ES EL INICIAL. CANCELAMOS EL BORRADO.
+            if primer_registro and primer_registro[0] == id_deposito:
+                conexion.close()
+                return False
+
+    # Si no es el inicial, procedemos a borrarlo normalmente
+    cursor.execute("DELETE FROM depositos_ahorro WHERE id = ?", (id_deposito,))
+    conexion.commit()
+    conexion.close()
+    return True
