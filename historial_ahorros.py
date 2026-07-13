@@ -9,7 +9,7 @@ class ModuloHistorialAhorros(ctk.CTkFrame):
         super().__init__(parent, fg_color="transparent")
         
         self.parent = parent
-        self.color_ahorros = ["#4DD4AC", "#20c997"] # Verde principal y verde hover
+        self.color_ahorros = ["#FFCD39", "#ffc107"] # Verde principal y verde hover
         self.registro_seleccionado_id = None  # ID para controlar la selección de la fila
         self.pagina_actual = 1
         self.registros_por_pagina = 10
@@ -42,7 +42,7 @@ class ModuloHistorialAhorros(ctk.CTkFrame):
         self.btn_eliminar.pack(side="left", padx=3)
         
         # --- FILTROS DE BÚSQUEDA (LADO DERECHO) ---
-        self.btn_buscar = ctk.CTkButton(self.frame_filtros, text="Buscar", fg_color=self.color_ahorros[0], hover_color=self.color_ahorros[1], width=90, command=self.ejecutar_busqueda)
+        self.btn_buscar = ctk.CTkButton(self.frame_filtros, text="Buscar", fg_color=self.color_ahorros[0], hover_color=self.color_ahorros[1], text_color="black", width=90, command=self.ejecutar_busqueda)
         self.btn_buscar.pack(side="right", padx=(5, 0))
 
         opciones_meses = list(self.meses_dict.keys())
@@ -52,6 +52,7 @@ class ModuloHistorialAhorros(ctk.CTkFrame):
             variable=self.filtro_mes, 
             width=120,
             fg_color=self.color_ahorros[0],
+            text_color="black",
             button_color=self.color_ahorros[0],
             button_hover_color=self.color_ahorros[1]
         )
@@ -73,6 +74,7 @@ class ModuloHistorialAhorros(ctk.CTkFrame):
             variable=self.filtro_tipo, 
             width=140,
             fg_color=self.color_ahorros[0],
+            text_color="black",
             button_color=self.color_ahorros[0],
             button_hover_color=self.color_ahorros[1]
         )
@@ -243,7 +245,7 @@ class ModuloHistorialAhorros(ctk.CTkFrame):
         ventana.grab_set()
         ventana.resizable(False, False)
         
-        ctk.CTkLabel(ventana, text="Editar Depósito", font=ctk.CTkFont(size=18, weight="bold")).pack(pady=15)
+        ctk.CTkLabel(ventana, text="Editar Ahorro", font=ctk.CTkFont(size=18, weight="bold")).pack(pady=15)
         
         # Entrada de Fecha
         ctk.CTkLabel(ventana, text="Fecha (DD-MM-AAAA):", anchor="w").pack(fill="x", padx=40)
@@ -295,7 +297,7 @@ class ModuloHistorialAhorros(ctk.CTkFrame):
         frame_btns = ctk.CTkFrame(ventana, fg_color="transparent")
         frame_btns.pack(fill="x", padx=40)
         ctk.CTkButton(frame_btns, text="Cancelar", fg_color="gray30", width=100, command=ventana.destroy).pack(side="left", padx=5)
-        ctk.CTkButton(frame_btns, text="Guardar", fg_color=self.color_ahorros[0], hover_color=self.color_ahorros[1], width=100, command=guardar_cambios).pack(side="right", padx=5)
+        ctk.CTkButton(frame_btns, text="Guardar", fg_color=self.color_ahorros[0], hover_color=self.color_ahorros[1], text_color="black", width=100, command=guardar_cambios).pack(side="right", padx=5)
 
     # --- ACCIÓN ELIMINAR REGISTRO ---
     def confirmar_eliminacion(self):

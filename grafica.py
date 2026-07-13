@@ -10,7 +10,7 @@ class ModuloGrafica(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent, fg_color="transparent")
         
-        self.color_primario = "#FFCD39" # Color amarillo de tu paleta
+        self.color_primario = "#198754"
 
         # Título Centrado
         self.lbl_titulo = ctk.CTkLabel(self, text="Gráfica de Ingresos", font=ctk.CTkFont(size=28, weight="bold"))
@@ -91,7 +91,7 @@ class ModuloGrafica(ctk.CTkFrame):
                         xy=(barra.get_x() + barra.get_width() / 2, altura),
                         xytext=(0, 3),  # 3 puntos de desfase vertical
                         textcoords="offset points",
-                        ha='center', va='bottom', fontsize=9, color='#FFCD39')
+                        ha='center', va='bottom', fontsize=9, color="#FFFFFF")
 
         # Ajustar el diseño para que no se corten los textos
         fig.tight_layout()

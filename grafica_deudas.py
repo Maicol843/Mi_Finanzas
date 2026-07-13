@@ -39,11 +39,25 @@ class ModuloGraficaDeudas(ctk.CTkFrame):
 
     def generar_grafica_barras(self):
         # 1. Obtener datos reales desde el historial de pagos de la BD
-        pagos = database.obtener_historial_pagos()
+        try:
+            pagos = database.obtener_historial_pagos()
+        except Exception:
+            pagos = []
         
         # Mapeo estático de los 12 meses en orden cronológico
         meses_nombre = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
                         "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+
+        # VALIDACIÓN TEMPRANA: Si el historial de pagos está vacío
+        if not pagos:
+            lbl_sin_registros = ctk.CTkLabel(
+                self.frame_grafico,
+                text="No hay registros de deudas suficientes para generar la grafica",
+                font=ctk.CTkFont(size=18, weight="bold"),
+                text_color="white"
+            )
+            lbl_sin_registros.place(relx=0.5, rely=0.5, anchor="center")
+            return
 
         # Obtener el año corriente para filtrar/mostrar de forma íntegra
         anio_actual = datetime.today().year
@@ -65,6 +79,17 @@ class ModuloGraficaDeudas(ctk.CTkFrame):
         # Separar listas ordenadas para los ejes
         meses_eje_x = meses_nombre
         totales_eje_y = [datos_agrupados[mes] for mes in meses_nombre]
+
+        # VALIDACIÓN SECUNDARIA: Si todos los meses acumulados suman 0
+        if sum(totales_eje_y) == 0:
+            lbl_sin_registros = ctk.CTkLabel(
+                self.frame_grafico,
+                text="No hay registros de deudas suficientes para generar la grafica.",
+                font=ctk.CTkFont(size=18, weight="bold"),
+                text_color="white"
+            )
+            lbl_sin_registros.place(relx=0.5, rely=0.5, anchor="center")
+            return
 
         # 2. Configuración estética estricta para Modo Oscuro (Previene el fondo blanco)
         plt.rcParams.update({

@@ -7,7 +7,7 @@ class VistaHistorialEgresos(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent, fg_color="transparent")
         self.parent = parent
-        self.color_gastos = ["#F44336", "#e53935"]
+        self.color_gastos = ["#FFCD39", "#ffc107"]
         
         self.pagina_actual = 1
         self.registros_por_pagina = 10
@@ -42,7 +42,7 @@ class VistaHistorialEgresos(ctk.CTkFrame):
         self.combo_mes.set(mes_nombre_actual)
         self.combo_mes.pack(side="left", padx=5)
 
-        self.btn_buscar = ctk.CTkButton(self.frame_filtros, text="Buscar", fg_color=self.color_gastos, text_color="white", hover_color=self.color_gastos, width=90, command=self.ejecutar_busqueda_mes)
+        self.btn_buscar = ctk.CTkButton(self.frame_filtros, text="Buscar", fg_color=self.color_gastos, text_color="black", hover_color=self.color_gastos, width=90, command=self.ejecutar_busqueda_mes)
         self.btn_buscar.pack(side="left", padx=5)
 
         # Buscador por descripción en la parte superior derecha de la tabla

@@ -9,7 +9,7 @@ class ModuloAhorros(ctk.CTkFrame):
         super().__init__(parent, fg_color="transparent")
         
         self.parent = parent
-        self.color_ahorros = ["#4DD4AC", "#20c997"]  # Tonalidad verde para identificar ahorros
+        self.color_ahorros = ["#FFCD39", "#ffc107"]  # Tonalidad verde para identificar ahorros
         self.ahorro_seleccionado_id = None
         
         self.pagina_actual = 1
@@ -33,7 +33,7 @@ class ModuloAhorros(ctk.CTkFrame):
         self.frame_acciones.pack(fill="x", padx=20, pady=5)
         
         # Botón Nuevo
-        self.btn_nuevo = ctk.CTkButton(self.frame_acciones, text="Nuevo", fg_color=self.color_ahorros, text_color="white", hover_color=self.color_ahorros[1], width=90, command=self.abrir_ventana_nuevo)
+        self.btn_nuevo = ctk.CTkButton(self.frame_acciones, text="Nuevo", fg_color=self.color_ahorros, text_color="black", hover_color=self.color_ahorros[1], width=90, command=self.abrir_ventana_nuevo)
         self.btn_nuevo.pack(side="left", padx=3)
         
         # Botón Editar
@@ -133,7 +133,7 @@ class ModuloAhorros(ctk.CTkFrame):
         # Dibujar Filas de Datos
         for item in datos_pagina:
             bg_match = self.color_ahorros if self.ahorro_seleccionado_id == item["id"] else "transparent"
-            txt_color = "white" if self.ahorro_seleccionado_id == item["id"] else ["gray10", "white"]
+            txt_color = "black" if self.ahorro_seleccionado_id == item["id"] else ["gray10", "white"]
             
             fila = ctk.CTkFrame(self.frame_tabla_contenedor, fg_color=bg_match, height=45, corner_radius=4)
             fila.pack(fill="x", pady=2, padx=2)
@@ -282,7 +282,7 @@ class ModuloAhorros(ctk.CTkFrame):
         frame_btns = ctk.CTkFrame(ventana, fg_color="transparent")
         frame_btns.pack(fill="x", padx=40)
         ctk.CTkButton(frame_btns, text="Cancelar", fg_color="gray30", width=100, command=ventana.destroy).pack(side="left", padx=5)
-        ctk.CTkButton(frame_btns, text="Guardar", fg_color=self.color_ahorros[0], hover_color=self.color_ahorros[1], width=100, command=guardar_cambios).pack(side="right", padx=5)
+        ctk.CTkButton(frame_btns, text="Guardar", fg_color=self.color_ahorros[0], hover_color=self.color_ahorros[1], text_color="black", width=100, command=guardar_cambios).pack(side="right", padx=5)
 
     def confirmar_eliminacion(self):
         if self.ahorro_seleccionado_id is None:
@@ -373,7 +373,7 @@ class ModuloAhorros(ctk.CTkFrame):
         frame_btns = ctk.CTkFrame(ventana, fg_color="transparent")
         frame_btns.pack(fill="x", padx=40)
         ctk.CTkButton(frame_btns, text="Cancelar", fg_color="gray30", width=100, command=ventana.destroy).pack(side="left", padx=5)
-        ctk.CTkButton(frame_btns, text="Guardar", fg_color=self.color_ahorros[0], hover_color=self.color_ahorros[1], width=100, command=guardar_meta).pack(side="right", padx=5)
+        ctk.CTkButton(frame_btns, text="Guardar", fg_color=self.color_ahorros[0], hover_color=self.color_ahorros[1], text_color="black", width=100, command=guardar_meta).pack(side="right", padx=5)
 
     def abrir_ventana_registrar(self):
         try:
@@ -437,4 +437,4 @@ class ModuloAhorros(ctk.CTkFrame):
         frame_btns = ctk.CTkFrame(ventana, fg_color="transparent")
         frame_btns.pack(fill="x", padx=40)
         ctk.CTkButton(frame_btns, text="Cancelar", fg_color="gray30", width=100, command=ventana.destroy).pack(side="left", padx=5)
-        ctk.CTkButton(frame_btns, text="Registrar", fg_color=self.color_ahorros[0], hover_color=self.color_ahorros[1], width=100, command=guardar_registro).pack(side="right", padx=5)
+        ctk.CTkButton(frame_btns, text="Registrar", fg_color=self.color_ahorros[0], hover_color=self.color_ahorros[1], text_color="black", width=100, command=guardar_registro).pack(side="right", padx=5)

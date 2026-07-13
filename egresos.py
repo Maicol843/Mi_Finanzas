@@ -12,7 +12,7 @@ class ModuloEgresos(ctk.CTkFrame):
         super().__init__(parent, fg_color="transparent")
         
         self.parent = parent
-        self.color_gastos = ["#F44336", "#e53935"] # Tonalidad roja para identificar gastos
+        self.color_gastos = ["#FFCD39", "#ffc107"] # Tonalidad roja para identificar gastos
         self.egreso_seleccionado_id = None
         
         self.pagina_actual = 1
@@ -35,7 +35,7 @@ class ModuloEgresos(ctk.CTkFrame):
         self.frame_acciones = ctk.CTkFrame(self, fg_color="transparent")
         self.frame_acciones.pack(fill="x", padx=20, pady=5)
         
-        self.btn_registrar = ctk.CTkButton(self.frame_acciones, text="Registrar", fg_color=self.color_gastos, text_color="white", hover_color=self.color_gastos, width=90, command=self.abrir_ventana_registro)
+        self.btn_registrar = ctk.CTkButton(self.frame_acciones, text="Registrar", fg_color=self.color_gastos, text_color="black", hover_color=self.color_gastos, width=90, command=self.abrir_ventana_registro)
         self.btn_registrar.pack(side="left", padx=3)
         
         self.btn_editar = ctk.CTkButton(self.frame_acciones, text="Editar", fg_color="gray30", hover_color="gray40", width=90, command=self.abrir_ventana_editar)
@@ -47,7 +47,7 @@ class ModuloEgresos(ctk.CTkFrame):
         self.btn_historial = ctk.CTkButton(self.frame_acciones, text="Historial", fg_color="gray30", hover_color="gray40", width=90, command=self.ir_a_historial)
         self.btn_historial.pack(side="left", padx=3)
         
-        # SOLUCIÓN: Cambiado el comando temporal por el método real ir_a_grafica
+        # Cambiado el comando temporal por el método real ir_a_grafica
         self.btn_grafica = ctk.CTkButton(self.frame_acciones, text="Gráfica", fg_color="gray30", hover_color="gray40", width=90, command=self.ir_a_grafica)
         self.btn_grafica.pack(side="left", padx=3)
         
@@ -145,7 +145,7 @@ class ModuloEgresos(ctk.CTkFrame):
 
         for item in datos_pagina:
             bg_match = self.color_gastos if self.egreso_seleccionado_id == item["id"] else "transparent"
-            txt_color = "white" if self.egreso_seleccionado_id == item["id"] else ["gray10", "white"]
+            txt_color = "black" if self.egreso_seleccionado_id == item["id"] else ["gray10", "white"]
             
             fila = ctk.CTkFrame(self.frame_tabla_contenedor, fg_color=bg_match, height=35, corner_radius=4)
             fila.pack(fill="x", pady=2, padx=2)
@@ -284,7 +284,7 @@ class ModuloEgresos(ctk.CTkFrame):
         frame_btns = ctk.CTkFrame(ventana, fg_color="transparent")
         frame_btns.pack(fill="x", padx=40)
         ctk.CTkButton(frame_btns, text="Cancelar", fg_color="gray30", width=100, command=ventana.destroy).pack(side="left", padx=5)
-        ctk.CTkButton(frame_btns, text="Guardar", fg_color=self.color_gastos, text_color="white", hover_color=self.color_gastos, width=100, command=guardar).pack(side="right", padx=5)
+        ctk.CTkButton(frame_btns, text="Guardar", fg_color=self.color_gastos, text_color="black", hover_color=self.color_gastos, width=100, command=guardar).pack(side="right", padx=5)
 
     def eliminar_egreso(self):
         if self.egreso_seleccionado_id is None:

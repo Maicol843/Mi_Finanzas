@@ -21,7 +21,7 @@ class VistaGraficaEgresos(ctk.CTkFrame):
         )
         self.lbl_desc.pack(pady=(0, 15), anchor="center")
 
-        # Contenedor para incrustar el lienzo de la gráfica
+        # Contenedor para incrustar el lienzo de la gráfica o el mensaje de error
         self.frame_canvas = ctk.CTkFrame(self, fg_color="transparent")
         self.frame_canvas.pack(fill="both", expand=True, padx=20, pady=20)
 
@@ -62,9 +62,9 @@ class VistaGraficaEgresos(ctk.CTkFrame):
             except Exception:
                 continue
 
+        # Si no hay datos, retornamos listas vacías para que el generador sepa que no hay registros
         if not acumulado_meses:
-            mes_actual = datetime.today().strftime('%m-%Y')
-            acumulado_meses[mes_actual] = 0.0
+            return [], []
 
         meses_ordenados = sorted(acumulado_meses.keys(), key=lambda x: datetime.strptime(x, "%m-%Y"))
         totales_ordenados = [acumulado_meses[mes] for mes in meses_ordenados]
@@ -75,16 +75,27 @@ class VistaGraficaEgresos(ctk.CTkFrame):
         # 1. Obtener los datos reales de la base de datos
         meses, totales = self.obtener_totales_historicos()
 
-        # 2. Configurar la estética oscura/clara de Matplotlib acorde a CustomTkinter
+        # 2. VALIDACIÓN: Si no hay registros válidos, muestra el mensaje de error centrado en lugar de la gráfica
+        if not meses or sum(totales) == 0:
+            lbl_sin_registros = ctk.CTkLabel(
+                self.frame_canvas,
+                text="No hay registros de gastos suficientes para generar la gráfica.",
+                font=ctk.CTkFont(size=18, weight="bold"),
+                text_color="white"
+            )
+            lbl_sin_registros.place(relx=0.5, rely=0.5, anchor="center")
+            return
+
+        # 3. Configurar la estética oscura/clara de Matplotlib acorde a CustomTkinter
         plt.style.use('ggplot')
         fig, ax = plt.subplots(figsize=(6, 4), dpi=100)
         fig.patch.set_facecolor('#2b2b2b') # Fondo adaptado a modo oscuro por defecto
         ax.set_facecolor('#333333')
 
-        # 3. Dibujar las barras de gastos (Tonalidad Roja de Gastos)
+        # 4. Dibujar las barras de gastos (Tonalidad Roja de Gastos)
         barras = ax.bar(meses, totales, color="#F44336", width=0.5, edgecolor="white", linewidth=0.7)
 
-        # 4. Configurar etiquetas y diseño de ejes
+        # 5. Configurar etiquetas y diseño de ejes
         ax.set_ylabel("Total Gastado ($)", color="white", fontsize=11, fontweight="bold")
         ax.set_xlabel("Meses Registrados", color="white", fontsize=11, fontweight="bold")
         ax.tick_params(colors="white", labelsize=10)
@@ -102,7 +113,7 @@ class VistaGraficaEgresos(ctk.CTkFrame):
 
         plt.tight_layout()
 
-        # 5. Dibujar e incrustar el objeto gráfico dentro del frame de Tkinter
+        # 6. Dibujar e incrustar el objeto gráfico dentro del frame de Tkinter
         canvas = FigureCanvasTkAgg(fig, master=self.frame_canvas)
         canvas.draw()
         canvas.get_tk_widget().pack(fill="both", expand=True)

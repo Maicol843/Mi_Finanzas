@@ -11,7 +11,7 @@ class ModuloIngresos(ctk.CTkFrame):
         super().__init__(parent, fg_color="transparent")
         
         self.parent = parent  # Guardamos la referencia para la navegación
-        self.color_primario = ["#479F76", "#198754"]
+        self.color_primario = ["#FFCD39", "#ffc107"]
         self.ingreso_seleccionado_id = None
         
         self.pagina_actual = 1
@@ -34,7 +34,7 @@ class ModuloIngresos(ctk.CTkFrame):
         self.frame_acciones = ctk.CTkFrame(self, fg_color="transparent")
         self.frame_acciones.pack(fill="x", padx=20, pady=10)
         
-        self.btn_registrar = ctk.CTkButton(self.frame_acciones, text="Registrar", fg_color=self.color_primario, text_color="white", hover_color=self.color_primario, width=90, command=self.abrir_ventana_registro)
+        self.btn_registrar = ctk.CTkButton(self.frame_acciones, text="Registrar", fg_color=self.color_primario, text_color="black", hover_color=self.color_primario, width=90, command=self.abrir_ventana_registro)
         self.btn_registrar.pack(side="left", padx=3)
         
         self.btn_editar = ctk.CTkButton(self.frame_acciones, text="Editar", fg_color="gray30", hover_color="gray40", width=90, command=self.abrir_ventana_editar)
@@ -249,7 +249,7 @@ class ModuloIngresos(ctk.CTkFrame):
         frame_btns = ctk.CTkFrame(ventana, fg_color="transparent")
         frame_btns.pack(fill="x", padx=40)
         ctk.CTkButton(frame_btns, text="Cancelar", fg_color="gray30", width=100, command=ventana.destroy).pack(side="left", padx=5)
-        ctk.CTkButton(frame_btns, text="Guardar", fg_color=self.color_primario, text_color="white", hover_color=self.color_primario, width=100, command=guardar).pack(side="right", padx=5)
+        ctk.CTkButton(frame_btns, text="Guardar", fg_color=self.color_primario, text_color="black", hover_color=self.color_primario, width=100, command=guardar).pack(side="right", padx=5)
 
     def eliminar_ingreso(self):
         if self.ingreso_seleccionado_id is None:

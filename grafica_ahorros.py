@@ -57,6 +57,10 @@ class ModuloGraficaAhorros(ctk.CTkFrame):
         except Exception:
             depositos = []
 
+        # Si el historial de depósitos está totalmente vacío, retornamos listas vacías
+        if not depositos:
+            return [], []
+
         # Inicializamos un diccionario con todos los meses del año en 0.0
         totales_meses = {str(i).zfill(2): 0.0 for i in range(1, 13)}
 
@@ -80,6 +84,17 @@ class ModuloGraficaAhorros(ctk.CTkFrame):
     def crear_grafica(self):
         # Obtener los datos procesados de la base de datos
         meses, totales = self.obtener_totales_por_mes()
+
+        # VALIDACIÓN: Si no hay registros o el total absoluto acumulado es 0
+        if not meses or sum(totales) == 0:
+            lbl_sin_registros = ctk.CTkLabel(
+                self.frame_grafico,
+                text="No hay registros de ahorros suficientes para generar la grafica.",
+                font=ctk.CTkFont(size=18, weight="bold"),
+                text_color="white"
+            )
+            lbl_sin_registros.place(relx=0.5, rely=0.5, anchor="center")
+            return
 
         # Configurar el estilo oscuro de la gráfica para que combine con CustomTkinter
         plt.style.use('dark_background')

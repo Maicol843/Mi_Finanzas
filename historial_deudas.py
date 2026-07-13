@@ -9,7 +9,7 @@ class ModuloHistorialDeudas(ctk.CTkFrame):
         super().__init__(parent, fg_color="transparent")
         
         self.parent = parent
-        self.color_deudas = ["#FD9843", "#fd7e14"] # Tonalidad naranja corporativa
+        self.color_deudas = ["#FFCD39", "#ffc107"] # Tonalidad naranja corporativa
         self.registro_seleccionado_id = None
         
         # Variables de Control de Paginación y Filtros
@@ -52,6 +52,7 @@ class ModuloHistorialDeudas(ctk.CTkFrame):
             width=140,
             fg_color=self.color_deudas[0],
             button_color=self.color_deudas[1],
+            text_color="black",
             button_hover_color=self.color_deudas[0]
         )
         self.combo_tipo.pack(side="left", padx=3)
@@ -63,6 +64,7 @@ class ModuloHistorialDeudas(ctk.CTkFrame):
             self.frame_filtros, 
             values=meses, 
             width=120,
+            text_color="black",
             fg_color=self.color_deudas[0],
             button_color=self.color_deudas[1],
             button_hover_color=self.color_deudas[0]
@@ -70,7 +72,7 @@ class ModuloHistorialDeudas(ctk.CTkFrame):
         self.combo_mes.pack(side="left", padx=3)
         self.combo_mes.set("Todos")
 
-        self.btn_buscar = ctk.CTkButton(self.frame_filtros, text="Buscar", fg_color=self.color_deudas[0], hover_color=self.color_deudas[1], width=80, command=self.ejecutar_busqueda)
+        self.btn_buscar = ctk.CTkButton(self.frame_filtros, text="Buscar", fg_color=self.color_deudas[0], hover_color=self.color_deudas[1], text_color="black", width=80, command=self.ejecutar_busqueda)
         self.btn_buscar.pack(side="left", padx=3)
 
         # Contenedor para la Estructura de la Tabla
@@ -144,7 +146,7 @@ class ModuloHistorialDeudas(ctk.CTkFrame):
                 widget.destroy()
 
         # Cabeceras
-        headers = ["Fecha del Pago", "Tipo de Deuda / Nombre", "Importe Registrado ($)"]
+        headers = ["Fecha del Pago", "Tipo de Deuda", "Importe Registrado ($)"]
         frame_headers = ctk.CTkFrame(self.frame_tabla_contenedor, fg_color="gray20", height=35)
         frame_headers.pack(fill="x", side="top")
         frame_headers.pack_propagate(False)
@@ -202,7 +204,7 @@ class ModuloHistorialDeudas(ctk.CTkFrame):
         frame_total.pack(fill="x", side="bottom", pady=(5, 0))
         frame_total.pack_propagate(False)
         
-        lbl_txt_total = ctk.CTkLabel(frame_total, text="TOTAL:", font=ctk.CTkFont(size=13, weight="bold"), anchor="e")
+        lbl_txt_total = ctk.CTkLabel(frame_total, text="TOTAL DEUDA:", font=ctk.CTkFont(size=13, weight="bold"), anchor="e")
         lbl_txt_total.place(relx=0.60, rely=0.5, anchor="e", relwidth=0.20)
         
         lbl_valor_total = ctk.CTkLabel(frame_total, text=f"$ {suma_total:.2f}", font=ctk.CTkFont(size=14, weight="bold"), text_color=self.color_deudas[0], anchor="e")
@@ -288,6 +290,7 @@ class ModuloHistorialDeudas(ctk.CTkFrame):
             font=ctk.CTkFont(size=13, weight="bold"),
             fg_color=self.color_deudas[0], 
             hover_color=self.color_deudas[1], 
+            text_color="black",
             command=guardar_cambios
         )
         btn_guardar.pack(pady=(5, 10))

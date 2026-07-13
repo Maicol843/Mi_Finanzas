@@ -9,7 +9,7 @@ class ModuloDeudas(ctk.CTkFrame):
         super().__init__(parent, fg_color="transparent")
         
         self.parent = parent
-        self.color_deudas = ["#FD9843", "#fd7e14"] # Tonalidad naranja corporativa
+        self.color_deudas = ["#FFCD39", "#ffc107"] # Tonalidad naranja corporativa
         self.deuda_seleccionada_id = None
         
         # Variables para Control de Paginación y Búsqueda
@@ -37,7 +37,7 @@ class ModuloDeudas(ctk.CTkFrame):
         self.frame_btns_izquierda = ctk.CTkFrame(self.frame_acciones, fg_color="transparent")
         self.frame_btns_izquierda.pack(side="left", fill="y")
         
-        self.btn_nuevo = ctk.CTkButton(self.frame_btns_izquierda, text="Nuevo", fg_color=self.color_deudas, text_color="white", hover_color=self.color_deudas[1], width=90, command=self.abrir_ventana_nuevo)
+        self.btn_nuevo = ctk.CTkButton(self.frame_btns_izquierda, text="Nuevo", fg_color=self.color_deudas, text_color="black", hover_color=self.color_deudas[1], width=90, command=self.abrir_ventana_nuevo)
         self.btn_nuevo.pack(side="left", padx=3)
         
         self.btn_editar = ctk.CTkButton(self.frame_btns_izquierda, text="Editar", fg_color="gray30", hover_color="gray40", width=90, command=self.abrir_ventana_editar)
@@ -181,7 +181,7 @@ class ModuloDeudas(ctk.CTkFrame):
         # Renderizar deudas de la página actual
         for item in deudas_pagina:
             bg_match = self.color_deudas if self.deuda_seleccionada_id == item["id"] else "transparent"
-            txt_color = "white" if self.deuda_seleccionada_id == item["id"] else ["gray10", "white"]
+            txt_color = "black" if self.deuda_seleccionada_id == item["id"] else ["gray10", "white"]
             
             fila = ctk.CTkFrame(self.frame_tabla_contenedor, fg_color=bg_match, height=45, corner_radius=4)
             fila.pack(fill="x", pady=2, padx=2)
@@ -277,7 +277,7 @@ class ModuloDeudas(ctk.CTkFrame):
         frame_btns = ctk.CTkFrame(ventana, fg_color="transparent")
         frame_btns.pack(fill="x", padx=40)
         ctk.CTkButton(frame_btns, text="Cancelar", fg_color="gray30", width=100, command=ventana.destroy).pack(side="left", padx=5)
-        ctk.CTkButton(frame_btns, text="Guardar", fg_color=self.color_deudas[0], hover_color=self.color_deudas[1], width=100, command=guardar).pack(side="right", padx=5)
+        ctk.CTkButton(frame_btns, text="Guardar", fg_color=self.color_deudas[0], hover_color=self.color_deudas[1], text_color="black", width=100, command=guardar).pack(side="right", padx=5)
 
     def abrir_ventana_editar(self):
         if self.deuda_seleccionada_id is None:
@@ -339,7 +339,7 @@ class ModuloDeudas(ctk.CTkFrame):
         frame_btns = ctk.CTkFrame(ventana, fg_color="transparent")
         frame_btns.pack(fill="x", padx=40)
         ctk.CTkButton(frame_btns, text="Cancelar", fg_color="gray30", width=100, command=ventana.destroy).pack(side="left", padx=5)
-        ctk.CTkButton(frame_btns, text="Guardar", fg_color=self.color_deudas[0], hover_color=self.color_deudas[1], width=100, command=guardar_cambios).pack(side="right", padx=5)
+        ctk.CTkButton(frame_btns, text="Guardar", fg_color=self.color_deudas[0], hover_color=self.color_deudas[1], text_color="black", width=100, command=guardar_cambios).pack(side="right", padx=5)
 
     def confirmar_eliminacion(self):
         if self.deuda_seleccionada_id is None:
@@ -414,4 +414,4 @@ class ModuloDeudas(ctk.CTkFrame):
         frame_btns = ctk.CTkFrame(ventana, fg_color="transparent")
         frame_btns.pack(fill="x", padx=40)
         ctk.CTkButton(frame_btns, text="Cancelar", fg_color="gray30", width=100, command=ventana.destroy).pack(side="left", padx=5)
-        ctk.CTkButton(frame_btns, text="Registrar", fg_color=self.color_deudas[0], hover_color=self.color_deudas[1], width=100, command=registrar_pago).pack(side="right", padx=5)
+        ctk.CTkButton(frame_btns, text="Registrar", fg_color=self.color_deudas[0], hover_color=self.color_deudas[1], text_color="black", width=100, command=registrar_pago).pack(side="right", padx=5)
