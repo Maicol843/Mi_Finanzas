@@ -5,6 +5,7 @@ import sys
 from ingresos import ModuloIngresos
 from egresos import ModuloEgresos
 from ahorros import ModuloAhorros
+from deudas import ModuloDeudas # Importación del nuevo módulo
 
 # Configuración inicial de la interfaz (Tema y Color)
 ctk.set_appearance_mode("System")  # Detecta automáticamente el modo del sistema (Claro/Oscuro)
@@ -79,48 +80,38 @@ class App(ctk.CTk):
         botones = [self.btn_inicio, self.btn_ingresos, self.btn_gastos, self.btn_ahorros, self.btn_deudas]
         for btn in botones:
             if btn == boton_activo:
-                # Aplicamos tus colores de la imagen image_f666e4.png y forzamos el texto a negro ("black")
                 btn.configure(fg_color=["#FFCD39", "#ffc107"], text_color="black") 
             else:
-                # Volvemos el fondo transparente y el texto a blanco (o el color por defecto de tu tema)
                 btn.configure(fg_color="transparent", text_color=["gray10", "white"])
 
     def mostrar_vista_inicio(self):
         self.limpiar_pantalla_principal()
         self.actualizar_estilo_botones(self.btn_inicio)
         
-        # Componentes de la vista de Inicio
         lbl_bienvenida = ctk.CTkLabel(self.main_frame, text="¡Bienvenido al Sistema Financiero!", font=ctk.CTkFont(size=24, weight="bold"))
         lbl_bienvenida.pack(pady=(20, 10), anchor="w")
         
         lbl_descripcion = ctk.CTkLabel(self.main_frame, text="Selecciona una opción en el menú izquierdo para comenzar a gestionar tu dinero.", font=ctk.CTkFont(size=14))
         lbl_descripcion.pack(pady=10, anchor="w")
 
-    # Métodos asignados a los botones del menú
     def ir_a_inicio(self):
         self.mostrar_vista_inicio()
 
     def ir_a_ingresos(self):
         self.limpiar_pantalla_principal()
         self.actualizar_estilo_botones(self.btn_ingresos)
-        
-        # Instanciamos y empaquetamos el módulo de ingresos directamente en el panel principal
         self.modulo_ingresos = ModuloIngresos(self.main_frame)
         self.modulo_ingresos.pack(fill="both", expand=True)
 
     def ir_a_egresos(self):
         self.limpiar_pantalla_principal()
         self.actualizar_estilo_botones(self.btn_gastos)
-        
-        # Instanciamos y renderizamos el nuevo módulo de gastos de forma interactiva
         self.modulo_egresos = ModuloEgresos(self.main_frame)
         self.modulo_egresos.pack(fill="both", expand=True)
 
     def ir_a_ahorros(self):
         self.limpiar_pantalla_principal()
         self.actualizar_estilo_botones(self.btn_ahorros)
-        
-        # SOLUCIÓN: Instanciamos y empaquetamos el módulo de ahorros real de forma interactiva
         self.modulo_ahorros = ModuloAhorros(self.main_frame)
         self.modulo_ahorros.pack(fill="both", expand=True)
 
@@ -128,8 +119,9 @@ class App(ctk.CTk):
         self.limpiar_pantalla_principal()
         self.actualizar_estilo_botones(self.btn_deudas)
         
-        lbl = ctk.CTkLabel(self.main_frame, text="Módulo de Deudas", font=ctk.CTkFont(size=24, weight="bold"))
-        lbl.pack(pady=20)
+        # Instanciamos y renderizamos el nuevo módulo de deudas real
+        self.modulo_deudas = ModuloDeudas(self.main_frame)
+        self.modulo_deudas.pack(fill="both", expand=True)
 
 if __name__ == "__main__":
     app = App()

@@ -392,3 +392,162 @@ def eliminar_deposito_ahorro_db(id_deposito):
     conexion.commit()
     conexion.close()
     return True
+
+# =====================================================================
+# MÓDULO DE DEUDAS
+# =====================================================================
+
+def crear_tablas_deudas():
+    """Crea las tablas de deudas y pagos si no existen"""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS deudas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre TEXT NOT NULL UNIQUE,
+            total REAL NOT NULL,
+            pago_mensual REAL NOT NULL,
+            interes REAL NOT NULL,
+            meses_a_pagar INTEGER NOT NULL
+        )
+    """)
+    
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS pagos_deudas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            fecha TEXT NOT NULL,
+            nombre_deuda TEXT NOT NULL,
+            importe REAL NOT NULL,
+            FOREIGN KEY (nombre_deuda) REFERENCES deudas(nombre)
+        )
+    """)
+    conexion.commit()
+    conexion.close()
+
+# Inicializamos las tablas de deudas de forma automática
+crear_tablas_deudas()
+
+def insertar_deuda(nombre, total, pago_mensual, interes, meses_a_pagar):
+    """Inserta una nueva obligación o préstamo"""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    try:
+        cursor.execute("""
+            INSERT INTO deudas (nombre, total, pago_mensual, interes, meses_a_pagar)
+            VALUES (?, ?, ?, ?, ?)
+        """, (nombre, total, pago_mensual, interes, meses_a_pagar))
+        conexion.commit()
+    except sqlite3.IntegrityError:
+        raise ValueError("Ya existe una deuda registrada con este nombre.")
+    finally:
+        conexion.close()
+
+def obtener_deudas_con_pagos():
+    """Trae todas las deudas calculando cuántos meses se han pagado dinámicamente"""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("""
+        SELECT 
+            d.id, 
+            d.nombre, 
+            d.total, 
+            d.pago_mensual, 
+            d.interes, 
+            d.meses_a_pagar,
+            COALESCE(COUNT(p.id), 0) AS meses_pagados
+        FROM deudas d
+        LEFT JOIN pagos_deudas p ON d.nombre = p.nombre_deuda
+        GROUP BY d.id, d.nombre, d.total, d.pago_mensual, d.interes, d.meses_a_pagar
+        ORDER BY d.id DESC
+    """)
+    filas = cursor.fetchall()
+    conexion.close()
+    
+    resultado = []
+    for f in filas:
+        resultado.append({
+            "id": f[0],
+            "nombre": f[1],
+            "total": f[2],
+            "pago_mensual": f[3],
+            "interes": f[4],
+            "meses_a_pagar": f[5],
+            "meses_pagados": f[6]
+        })
+    return resultado
+
+def actualizar_deuda_db(id_deuda, nuevo_nombre, nuevo_total, nuevo_pago, nuevo_interes, nuevos_meses, nombre_anterior):
+    """Actualiza los parámetros de una deuda y migra sus registros de pagos en cascada"""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    try:
+        cursor.execute("""
+            UPDATE deudas 
+            SET nombre = ?, total = ?, pago_mensual = ?, interes = ?, meses_a_pagar = ? 
+            WHERE id = ?
+        """, (nuevo_nombre, nuevo_total, nuevo_pago, nuevo_interes, nuevos_meses, id_deuda))
+        
+        cursor.execute("UPDATE pagos_deudas SET nombre_deuda = ? WHERE nombre_deuda = ?", (nuevo_nombre, nombre_anterior))
+        conexion.commit()
+    except sqlite3.IntegrityError:
+        raise ValueError("Ya existe otra deuda con ese nombre.")
+    finally:
+        conexion.close()
+
+def eliminar_deuda_db(id_deuda, nombre_deuda):
+    """Elimina la deuda y su historial completo de pagos"""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("DELETE FROM pagos_deudas WHERE nombre_deuda = ?", (nombre_deuda,))
+    cursor.execute("DELETE FROM deudas WHERE id = ?", (id_deuda,))
+    conexion.commit()
+    conexion.close()
+
+def registrar_pago_deuda_db(fecha, nombre_deuda, importe):
+    """Registra el pago mensual de una cuota"""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("""
+        INSERT INTO pagos_deudas (fecha, nombre_deuda, importe)
+        VALUES (?, ?, ?)
+    """, (fecha, nombre_deuda, importe))
+    conexion.commit()
+    conexion.close()
+
+def obtener_historial_pagos():
+    """Trae todos los registros de pagos de deudas ordenados por ID descendente"""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT id, fecha, nombre_deuda, importe FROM pagos_deudas ORDER BY id DESC")
+    filas = cursor.fetchall()
+    conexion.close()
+    
+    resultado = []
+    for f in filas:
+        resultado.append({
+            "id": f[0],
+            "fecha": f[1],
+            "tipo_deuda": f[2],  # Lo mapeamos como 'tipo_deuda' para que coincida con tu vista externa
+            "importe": f[3]
+        })
+    return resultado
+
+def actualizar_fecha_pago_db(id_pago, nueva_fecha):
+    """Actualiza únicamente la fecha de un registro de pago de deuda mediante su ID"""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        "UPDATE pagos_deudas SET fecha = ? WHERE id = ?",
+        (nueva_fecha, id_pago)
+    )
+    conexion.commit()
+    conexion.close()
+
+def eliminar_pago_deuda_db(id_pago):
+    """Elimina permanentemente un registro de pago de deuda mediante su ID"""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("DELETE FROM pagos_deudas WHERE id = ?", (id_pago,))
+    conexion.commit()
+    conexion.close()
