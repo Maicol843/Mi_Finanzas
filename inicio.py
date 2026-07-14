@@ -30,6 +30,13 @@ class App(ctk.CTk):
 
         # Configuración de la ventana principal
         self.title("Sistema de Gestión Financiera")
+
+        try:
+            self.iconbitmap("logo.ico") 
+        except Exception as e:
+            print(f"No se pudo cargar el icono: {e}")
+        # ----------------------------
+
         self.geometry("1000 x 700")  
         self.resizable(True, True)
 
